@@ -30,11 +30,11 @@ export default function EmailField({
                 <input
                     {...register("email")}
                     className={clsx(
-                        "border border-[#CED4DA] w-full rounded-lg placeholder:text-[#666666] p-4",
+                        "border border-[#CED4DA] focus-within:outline-0 w-full rounded-lg placeholder:text-[#666666] p-4",
                         errors.email
-                            ? "outline-red-500 autofill:bg-green-50 bg-red-50 text-red-500 focus:outline-red-500"
+                            ? "outline-red-500 bg-red-50 text-red-500 focus:outline-red-500"
                             : email
-                              ? "bg-green-50 autofill:bg-green-50 outline-green-500 text-green-500 focus:outline-green-500 border-2 border-green-500"
+                              ? "bg-green-50 outline-green-500 text-green-500 focus:outline-green-500 border-2 border-green-500"
                               : "",
                     )}
                     placeholder="name@example.com"

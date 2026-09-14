@@ -13,3 +13,10 @@ input::-ms-reveal,
 input::-ms-clear {
   display: none;
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #f0fdf4 inset;
+  -webkit-text-fill-color: black;
+}

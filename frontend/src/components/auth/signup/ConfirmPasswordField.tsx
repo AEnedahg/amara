@@ -41,7 +41,7 @@ export default function ConfirmPasswordField({
                     {...register("confirm_password")}
                     type={state ? "text" : "password"}
                     className={clsx(
-                        "border border-[#CED4DA] w-full rounded-lg placeholder:text-[#666666] p-4",
+                        "border border-[#CED4DA] focus-within:outline-0 w-full rounded-lg placeholder:text-[#666666] p-4",
                         confirmPassword &&
                             (passwordsMatch
                                 ? "bg-green-50 outline-green-500 text-green-500 focus:outline-green-500 border-2 border-green-500"
