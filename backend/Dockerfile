@@ -1,69 +1,39 @@
-# ---- Base PHP image with extensions ----
-FROM php:8.3-fpm AS base
+FROM php:8.5-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
+    unzip \
+    libpq-dev \
     libzip-dev \
     zip \
-    unzip \
-    nginx \
-    supervisor \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install \
-    pdo_mysql \
-    mbstring \
-    exif \
-    pcntl \
+    && docker-php-ext-install \
+    pdo_pgsql \
+    pgsql \
     bcmath \
-    gd \
     zip \
-    opcache
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
+# Set working directory
+WORKDIR /var/www
 
-# ---- Dependency install (cached layer) ----
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
-
-# ---- Copy application code ----
+# Copy Laravel application
 COPY . .
 
-# Finish composer setup now that full app is present
-RUN composer dump-autoload --optimize \
-    && composer run-script post-autoload-dump || true
+# Install PHP dependencies
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
 
-# ---- Frontend build (skip if you don't use Vite/Mix) ----
-FROM node:20 AS frontend
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-# ---- Final image ----
-FROM base AS final
+EXPOSE 8000
 
-# Bring in built frontend assets
-COPY --from=frontend /app/public/build /var/www/html/public/build
-
-# Permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Nginx + Supervisor config
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-EXPOSE 10000
-
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD php artisan serve --host=0.0.0.0 --port=8000
