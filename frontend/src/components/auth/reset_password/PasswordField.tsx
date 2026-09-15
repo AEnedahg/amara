@@ -1,25 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { loginSchemaType } from "@/schema/loginSchema";
+import { forgotPasswordPasswordsSchemaType } from "@/schema/forgotPasswordPasswordsSchema";
 import {
     type UseFormRegister,
     FieldErrors,
     type UseFormWatch,
 } from "react-hook-form";
 import clsx from "clsx";
+import { Check } from "lucide-react";
 import { Eye } from "lucide-react";
 import { EyeClosed } from "lucide-react";
-import Link from "next/link";
+import { passwordCriteria } from "@/lib/utils";
+import { testPassword } from "@/lib/utils";
 
 export default function PasswordField({
     register,
     errors,
     watch,
 }: {
-    register: UseFormRegister<loginSchemaType>;
-    errors: FieldErrors<loginSchemaType>;
-    watch: UseFormWatch<loginSchemaType>;
+    register: UseFormRegister<forgotPasswordPasswordsSchemaType>;
+    errors: FieldErrors<forgotPasswordPasswordsSchemaType>;
+    watch: UseFormWatch<forgotPasswordPasswordsSchemaType>;
 }) {
     const [state, setState] = useState<boolean>(false);
 
@@ -28,15 +30,12 @@ export default function PasswordField({
     return (
         <div className="mt-4">
             <div className="relative">
-                <div className="flex justify-between">
-                    <label
-                        htmlFor="password"
-                        className="text-[#3B3B3B] text-[16px] mb-3 inline-block"
-                    >
-                        Password
-                    </label>
-                    <Link href="/forgot_password" className="text-gray-500">Forgot Password?</Link>
-                </div>
+                <label
+                    htmlFor="password"
+                    className="text-[#3B3B3B] text-[16px] mb-3 inline-block"
+                >
+                    Password
+                </label>
                 <input
                     {...register("password")}
                     type={state ? "text" : "password"}
@@ -75,12 +74,43 @@ export default function PasswordField({
                     </div>
                 )}
             </div>
-
+            <div className="w-full relative h-2 bg-gray-100 mt-4">
+                {testPassword(password) === "none" && (
+                    <div className="w-2 h-full bg-gray-500 absolute top-0 left-0 z-50" />
+                )}
+                {testPassword(password) === "weak" && (
+                    <div className="w-1/3 h-full bg-red-500 absolute top-0 left-0 z-50" />
+                )}
+                {testPassword(password) === "medium" && (
+                    <div className="w-2/3 h-full bg-amber-500 absolute top-0 left-0 z-50" />
+                )}
+                {testPassword(password) === "strong" && (
+                    <div className="w-full  h-full bg-green-500 absolute top-0 left-0 z-50" />
+                )}
+            </div>
             {errors && (
                 <small className="text-red-500">
                     {errors.password?.message}
                 </small>
             )}
+
+            <div className="space-y-2 mt-4">
+                {passwordCriteria({ password }).map((item) => (
+                    <div key={item.id} className="flex items-center gap-x-2">
+                        <div
+                            className={clsx(
+                                `size-5 rounded-full flex justify-center items-center`,
+                                item.condition
+                                    ? "bg-green-500/90"
+                                    : "bg-white border border-gray-500",
+                            )}
+                        >
+                            <Check className="stroke-white size-1/2" />
+                        </div>
+                        <small className="text-[#161717]">{item.string}</small>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

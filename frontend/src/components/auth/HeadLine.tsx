@@ -22,11 +22,11 @@ export default function HeadLine({
                       <ArrowLeft className="max-xl:size-6 xl:size-8 stroke-[#161717]" />
                   )}
               </Link>
-              <h3 className="col-start-2 text-center max-xl:text-[20px] xl:text-[30px] font-semibold text-[#5C85D9]">
+              <h3 className="col-start-2 text-center max-xl:text-[20px] xl:text-[24px] font-semibold text-[#5C85D9]">
                   {heading}
               </h3>
           </div>
-          <div className="text-[#161717] text-[16px] xl:text-[20px] text-center mt-4">{para}</div>
+          <div className="text-[#161717] text-[16px] text-center mt-4">{para}</div>
       </div>
   );
 }
