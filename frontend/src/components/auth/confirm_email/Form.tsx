@@ -8,6 +8,9 @@ import {
     confirmEmailSchemaType,
 } from "@/schema/confirmEmailSchema";
 import Button from "../Button";
+import { useVerifyCode } from "@/hooks/useVerifyCode";
+import { useRouter } from "next/navigation";
+import { useResendCode } from "@/hooks/useResendCode";
 
 const RESEND_COOLDOWN = 60; // seconds
 
@@ -24,12 +27,15 @@ export default function Form() {
         mode: "onChange",
     });
 
+    const router = useRouter();
+    const verifyMutation = useVerifyCode();
+    const resendMutation = useResendCode();
+
     const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
     const otpValue = watch("six_digit_code");
 
     // --- Resend timer state ---
     const [secondsLeft, setSecondsLeft] = useState(RESEND_COOLDOWN);
-    const [isResending, setIsResending] = useState(false);
 
     useEffect(() => {
         if (secondsLeft <= 0) return;
@@ -41,23 +47,19 @@ export default function Form() {
         return () => clearInterval(interval);
     }, [secondsLeft]);
 
-    const handleResend = useCallback(async () => {
-        if (secondsLeft > 0 || isResending) return;
+    const handleResend = () => {
+        if (secondsLeft > 0 || resendMutation.isPending) return;
 
-        setIsResending(true);
-        try {
-            // Replace with your actual resend API call
-            await fetch("/api/resend-code", { method: "POST" });
-
-            setSecondsLeft(RESEND_COOLDOWN);
-            setValue("six_digit_code", "", { shouldValidate: true }); // clear boxes
-            inputsRef.current[0]?.focus();
-        } catch (err) {
-            console.error("Failed to resend code:", err);
-        } finally {
-            setIsResending(false);
-        }
-    }, [secondsLeft, isResending, setValue]);
+        resendMutation.mutate(undefined, {
+            onSuccess: () => {
+                setSecondsLeft(RESEND_COOLDOWN);
+                setValue("six_digit_code", "", {
+                    shouldValidate: true,
+                });
+                inputsRef.current[0]?.focus();
+            },
+        });
+    };
 
     // --- Existing OTP logic ---
     const handleChange = (index: number, value: string) => {
@@ -94,7 +96,11 @@ export default function Form() {
     };
 
     const onSubmit = (data: confirmEmailSchemaType) => {
-        console.log("Submitted OTP:", data.six_digit_code);
+        verifyMutation.mutate(data.six_digit_code, {
+            onSuccess: () => {
+                router.push("/verification_successful");
+            },
+        });
     };
 
     return (
@@ -158,16 +164,23 @@ export default function Form() {
                             <button
                                 type="button"
                                 onClick={handleResend}
-                                disabled={isResending}
+                                disabled={resendMutation.isPending}
                                 className="text-[#5C85D9] font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isResending ? "Sending..." : "Send again"}
+                                {resendMutation.isPending
+                                    ? "Sending..."
+                                    : "Send again"}
                             </button>
                         </span>
                     )}
                 </div>
 
-                <Button disabled={!isValid} linkHref="/">
+                <Button
+                    type="submit"
+                    linkHref="/signup_successful"
+                    disabled={!isValid || verifyMutation.isPending}
+                    isLoading={verifyMutation.isPending}
+                >
                     Verify Code
                 </Button>
             </form>

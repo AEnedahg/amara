@@ -23,7 +23,7 @@ class VerifyCodeController extends Controller
             ]);
         }
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $email)->first();
 
         if (! $user) {
             throw ValidationException::withMessages([
@@ -31,7 +31,10 @@ class VerifyCodeController extends Controller
             ]);
         }
 
-        if ($user->verification_code_expires_at && $user->verification_code_expires_at->isPast()) {
+        if (
+            $user->verification_code_expires_at &&
+            $user->verification_code_expires_at->isPast()
+        ) {
             throw ValidationException::withMessages([
                 'six_digit_code' => 'This code has expired. Please request a new one.',
             ]);
