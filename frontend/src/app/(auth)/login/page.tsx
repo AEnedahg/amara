@@ -3,16 +3,19 @@
 import AuthWrapper from "@/components/auth/AuthWrapper";
 import HeadLine from "@/components/auth/HeadLine";
 import EmailField from "@/components/auth/login/EmailField";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, loginSchemaType } from "@/schema/loginSchema";
 import PasswordField from "@/components/auth/login/PasswordField";
 import Button from "@/components/auth/Button";
 import OrRegisterWith from "@/components/auth/OrRegisterWith";
 import GoogleButton from "@/components/auth/GoogleButton";
 import AuthFooter from "@/components/auth/AuthFooter";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type loginSchemaType } from "@/schema/loginSchema";
+
 import { useLogin } from "@/hooks/useLogin";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Page() {
     const router = useRouter();
@@ -32,6 +35,26 @@ export default function Page() {
         loginMutation.mutate(data, {
             onSuccess: () => {
                 router.push("/");
+            },
+
+            onError: (error) => {
+                if (axios.isAxiosError(error)) {
+                    const errors = error.response?.data?.errors;
+
+                    if (errors?.email?.[0]) {
+                        form.setError("email", {
+                            type: "server",
+                            message: errors.email[0],
+                        });
+                    }
+
+                    if (errors?.password?.[0]) {
+                        form.setError("password", {
+                            type: "server",
+                            message: errors.password[0],
+                        });
+                    }
+                }
             },
         });
     };
