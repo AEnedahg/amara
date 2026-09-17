@@ -2,59 +2,38 @@
 
 import AuthWrapper from "@/components/auth/AuthWrapper";
 import HeadLine from "@/components/auth/HeadLine";
-import EmailField from "@/components/auth/login/EmailField";
-import PasswordField from "@/components/auth/login/PasswordField";
+import EmailField from "@/components/auth/signup/EmailField";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signupSchema, signupSchemaType } from "@/schema/signupSchema";
+import PasswordField from "@/components/auth/signup/PasswordField";
+import ConfirmPasswordField from "@/components/auth/signup/ConfirmPasswordField";
 import Button from "@/components/auth/Button";
 import OrRegisterWith from "@/components/auth/OrRegisterWith";
 import GoogleButton from "@/components/auth/GoogleButton";
 import AuthFooter from "@/components/auth/AuthFooter";
-
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type loginSchemaType } from "@/schema/loginSchema";
-
-import { useLogin } from "@/hooks/useLogin";
+import { useSignup } from "@/hooks/useSignup";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 export default function Page() {
     const router = useRouter();
 
-    const form = useForm<loginSchemaType>({
-        resolver: zodResolver(loginSchema),
+    const form = useForm<signupSchemaType>({
+        resolver: zodResolver(signupSchema),
         defaultValues: {
             email: "",
             password: "",
+            confirm_password: "",
         },
         mode: "onChange",
     });
 
-    const loginMutation = useLogin();
+    const signupMutation = useSignup();
 
-    const onSubmit = (data: loginSchemaType) => {
-        loginMutation.mutate(data, {
+    const onSubmit = (data: signupSchemaType) => {
+        signupMutation.mutate(data, {
             onSuccess: () => {
-                router.push("/");
-            },
-
-            onError: (error) => {
-                if (axios.isAxiosError(error)) {
-                    const errors = error.response?.data?.errors;
-
-                    if (errors?.email?.[0]) {
-                        form.setError("email", {
-                            type: "server",
-                            message: errors.email[0],
-                        });
-                    }
-
-                    if (errors?.password?.[0]) {
-                        form.setError("password", {
-                            type: "server",
-                            message: errors.password[0],
-                        });
-                    }
-                }
+                router.push("/confirm_email");
             },
         });
     };
@@ -64,8 +43,8 @@ export default function Page() {
             <HeadLine
                 hasArrow={true}
                 linkto="/"
-                heading="Login"
-                para="Welcome back! Sign in and pick up right where you left off."
+                heading="Sign Up"
+                para="Create your account and start building a professional resume in minutes."
             />
 
             <form className="w-full" onSubmit={form.handleSubmit(onSubmit)}>
@@ -81,24 +60,30 @@ export default function Page() {
                     watch={form.watch}
                 />
 
+                <ConfirmPasswordField
+                    register={form.register}
+                    errors={form.formState.errors}
+                    watch={form.watch}
+                />
+
                 <Button
                     type="submit"
                     disabled={
-                        !form.formState.isValid || loginMutation.isPending
+                        !form.formState.isValid || signupMutation.isPending
                     }
-                    isLoading={loginMutation.isPending}
+                    isLoading={signupMutation.isPending}
                 >
-                    Login
+                    Create account
                 </Button>
 
                 <OrRegisterWith />
 
-                <GoogleButton linkHref="/">Sign in with Google</GoogleButton>
+                <GoogleButton linkHref="/">Sign up with Google</GoogleButton>
 
                 <AuthFooter
-                    optionText="Don't have an account?"
-                    optionLinkText="Sign up"
-                    optionLinkHref="/signup"
+                    optionText="Already have an account?"
+                    optionLinkText="Login"
+                    optionLinkHref="/login"
                 />
             </form>
         </AuthWrapper>
