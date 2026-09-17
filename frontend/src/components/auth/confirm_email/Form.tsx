@@ -98,7 +98,7 @@ export default function Form() {
     const onSubmit = (data: confirmEmailSchemaType) => {
         verifyMutation.mutate(data.six_digit_code, {
             onSuccess: () => {
-                router.push("/verification_successful");
+                router.push("/signup_successful");
             },
         });
     };
@@ -177,7 +177,6 @@ export default function Form() {
 
                 <Button
                     type="submit"
-                    linkHref="/signup_successful"
                     disabled={!isValid || verifyMutation.isPending}
                     isLoading={verifyMutation.isPending}
                 >

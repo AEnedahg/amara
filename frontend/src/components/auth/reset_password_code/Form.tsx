@@ -9,7 +9,7 @@ import {
 } from "@/schema/resetPasswordSchema";
 import Button from "../Button";
 
-const RESEND_COOLDOWN = 60; // seconds
+const RESEND_COOLDOWN = 60;
 
 export default function Form() {
     const {
@@ -20,14 +20,15 @@ export default function Form() {
         formState: { errors, isValid },
     } = useForm<resetPasswordSchemaType>({
         resolver: zodResolver(resetPasswordSchema),
-        defaultValues: { four_digit_code: "" },
+        defaultValues: {
+            four_digit_code: "",
+        },
         mode: "onChange",
     });
 
     const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
     const otpValue = watch("four_digit_code");
 
-    // --- Resend timer state ---
     const [secondsLeft, setSecondsLeft] = useState(RESEND_COOLDOWN);
     const [isResending, setIsResending] = useState(false);
 
@@ -45,11 +46,17 @@ export default function Form() {
         if (secondsLeft > 0 || isResending) return;
 
         setIsResending(true);
+
         try {
-            await fetch("/api/resend-code", { method: "POST" });
+            // Call your Laravel forgot-password endpoint here
+            // once you connect it to TanStack Query.
 
             setSecondsLeft(RESEND_COOLDOWN);
-            setValue("four_digit_code", "", { shouldValidate: true });
+
+            setValue("four_digit_code", "", {
+                shouldValidate: true,
+            });
+
             inputsRef.current[0]?.focus();
         } catch (err) {
             console.error("Failed to resend code:", err);
@@ -61,13 +68,17 @@ export default function Form() {
     const handleChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return;
 
-        const otpArray = otpValue.padEnd(4, " ").split("");
+        const otpArray = otpValue.padEnd(6, " ").split("");
+
         otpArray[index] = value.slice(-1);
-        const newOtp = otpArray.join("").replace(/ /g, "").slice(0, 4);
 
-        setValue("four_digit_code", newOtp, { shouldValidate: true });
+        const newOtp = otpArray.join("").replace(/ /g, "").slice(0, 6);
 
-        if (value && index < 3) {
+        setValue("four_digit_code", newOtp, {
+            shouldValidate: true,
+        });
+
+        if (value && index < 5) {
             inputsRef.current[index + 1]?.focus();
         }
     };
@@ -83,12 +94,17 @@ export default function Form() {
 
     const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         e.preventDefault();
+
         const pasted = e.clipboardData
             .getData("text")
             .replace(/\D/g, "")
-            .slice(0, 4);
-        setValue("four_digit_code", pasted, { shouldValidate: true });
-        inputsRef.current[Math.min(pasted.length, 3)]?.focus();
+            .slice(0, 6);
+
+        setValue("four_digit_code", pasted, {
+            shouldValidate: true,
+        });
+
+        inputsRef.current[Math.min(pasted.length, 5)]?.focus();
     };
 
     const onSubmit = (data: resetPasswordSchemaType) => {
@@ -100,6 +116,7 @@ export default function Form() {
             <label htmlFor="four_digit_code" className="block mb-2 text-center">
                 Code
             </label>
+
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col items-center gap-4"
@@ -109,7 +126,7 @@ export default function Form() {
                     control={control}
                     render={() => (
                         <div className="flex gap-2" onPaste={handlePaste}>
-                            {Array.from({ length: 4 }).map((_, i) => (
+                            {Array.from({ length: 6 }).map((_, i) => (
                                 <input
                                     key={i}
                                     ref={(el) => {
@@ -164,7 +181,7 @@ export default function Form() {
                     )}
                 </div>
 
-                <Button disabled={!isValid} linkHref="/">
+                <Button type="submit" disabled={!isValid}>
                     Verify Code
                 </Button>
             </form>

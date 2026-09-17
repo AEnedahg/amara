@@ -60,7 +60,6 @@ export default function Page() {
 
                 <Button
                     type="submit"
-                    linkHref="/"
                     disabled={
                         !form.formState.isValid || loginMutation.isPending
                     }

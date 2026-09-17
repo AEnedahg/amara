@@ -5,7 +5,7 @@ import { LoaderCircle } from "lucide-react";
 
 type ButtonTypes = {
     children: string;
-    linkHref: string;
+    linkHref?: string;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
     isLoading?: boolean;
@@ -16,7 +16,7 @@ export default function Button({ children, linkHref, disabled, type, isLoading }
 
     return (
         <button
-            onClick={() => router.push(linkHref)}
+            onClick={() => router.push(linkHref || '')}
             disabled={disabled}
             type={type}
             className="cursor-pointer disabled:bg-gray-300 disabled:text-gray-500 w-full py-4.75 text-white font-poppins! inline-flex rounded-sm mt-16 bg-[#5C85D9]

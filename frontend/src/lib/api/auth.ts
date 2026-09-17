@@ -1,5 +1,11 @@
 import api from "@/lib/axios";
 
+
+export type ForgotPasswordData = {
+    email: string;
+};
+
+
 export type SignupData = {
     email: string;
     password: string;
@@ -34,6 +40,13 @@ export const resendCode = async () => {
 
 export const login = async (data: LoginData) => {
     const response = await api.post("/login", data);
+
+    return response.data;
+};
+
+
+export const forgotPassword = async (data: ForgotPasswordData) => {
+    const response = await api.post("/forgot-password", data);
 
     return response.data;
 };

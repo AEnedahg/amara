@@ -68,7 +68,6 @@ export default function Page() {
 
                 <Button
                     type="submit"
-                    linkHref="/confirm_email"
                     disabled={
                         !form.formState.isValid || signupMutation.isPending
                     }
