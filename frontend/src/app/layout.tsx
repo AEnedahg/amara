@@ -1,7 +1,7 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
-import { QueryClient, QueryClientProvider} from '@tanstack/react-query'
+import Providers from "@/components/providers/Providers";
 
 const poppins = Poppins({
     subsets: ['latin'],
@@ -53,19 +53,13 @@ export const metadata: Metadata = {
   }
 };
 
-const queryClient = new QueryClient();
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${poppins.variable}  h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <QueryClientProvider client={queryClient}>
-            {children}
-        </QueryClientProvider>
-        </body>
-    </html>
+      <html lang="en" className={`${poppins.variable}  h-full antialiased`}>
+          <body className="min-h-full flex flex-col">
+              <Providers>{children}</Providers>
+          </body>
+      </html>
   );
 }

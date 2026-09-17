@@ -6,6 +6,11 @@ export type SignupData = {
     confirm_password: string;
 };
 
+export type LoginData = {
+    email: string;
+    password: string;
+};
+
 export const signup = async (data: SignupData) => {
     const response = await api.post("/signup", data);
 
@@ -22,6 +27,13 @@ export const verifyCode = async (six_digit_code: string) => {
 
 export const resendCode = async () => {
     const response = await api.post("/resend-code");
+
+    return response.data;
+};
+
+
+export const login = async (data: LoginData) => {
+    const response = await api.post("/login", data);
 
     return response.data;
 };
