@@ -35,7 +35,9 @@ export default function PasswordField({
                     >
                         Password
                     </label>
-                    <Link href="/forgot_password" className="text-gray-500">Forgot Password?</Link>
+                    <Link href="/forgot_password" className="text-gray-500">
+                        Forgot Password?
+                    </Link>
                 </div>
                 <input
                     {...register("password")}
@@ -43,7 +45,7 @@ export default function PasswordField({
                     className={clsx(
                         "border border-[#CED4DA] focus-within:outline-0 w-full rounded-lg placeholder:text-[#666666] p-4",
                         errors.password
-                            ? "outline-red-500 text-red-500 focus:outline-red-500 bg-red-50"
+                            ? "outline-red-500 text-red-500 focus:outline-red-500 bg-red-50 border-2 border-red-500"
                             : password
                               ? "bg-green-50 outline-green-500 text-green-500 focus:outline-green-500 border-2 border-green-500"
                               : "",

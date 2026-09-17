@@ -45,7 +45,7 @@ export default function ConfirmPasswordField({
                         confirmPassword &&
                             (passwordsMatch
                                 ? "bg-green-50 outline-green-500 text-green-500 focus:outline-green-500 border-2 border-green-500"
-                                : "outline-red-500 text-red-500 focus:outline-red-500 bg-red-50"),
+                                : "outline-red-500 text-red-500 focus:outline-red-500 bg-red-50 border-2 border-red-500"),
                     )}
                     placeholder="Re-enter password"
                 />
